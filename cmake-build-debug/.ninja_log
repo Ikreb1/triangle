@@ -1,0 +1,6 @@
+# ninja log v5
+0	37	7114827921860795	CMakeFiles/triangle.dir/source/private/main.cpp.obj	faf28ed385ea3d12
+2	156	7114867037765410	CMakeFiles/triangle.dir/main.cpp.obj	c6935b215de37e6
+153	217	7114865323230169	triangle.exe	cbe118740ea58187
+2	394	7114868021548503	CMakeFiles/triangle.dir/C_/glad/src/glad.c.obj	77b9f87b96cc3367
+394	458	7114868022166705	triangle.exe	a11a72d5b72f32c5
