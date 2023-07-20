@@ -6,6 +6,18 @@ VBO: Vertex Buffer Object
 
 EBO: Element Buffer Object
 
+default max 16 input vertex attributes
+
+fragment shaders need to output a color vector with 4 components
+
+swizzling
+```glsl
+vec2 someVec;
+vec4 differentVec = someVec.xyxx;
+vec3 anotherVec = differentVec.zyw;
+vec4 otherVec = someVec.xxxx + anotherVec.yxzy;
+```
+
 ```c++
 // shader debugging
 int  success;
