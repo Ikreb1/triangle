@@ -17,9 +17,13 @@ int backgroundInputDelay = 0;
 bool isTriangle = true;
 
 float triangle[] = {
-        0.0f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Vertex 1: Red
-        0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Vertex 2: Green
-        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f  // Vertex 3: Blue
+        0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Vertex 1: Red
+        1.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Vertex 2: Green
+        0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,  // Vertex 3: Blue
+        // Triangle 2
+        -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Vertex 1: Red
+        -1.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Vertex 2: Green
+        0.0f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f  // Vertex 3: Blue
 };
 
 float square[] = {
@@ -149,26 +153,30 @@ int main() {
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
 
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    unsigned int VBOs[2], VAOs[2], EBO;
+    glGenVertexArrays(2, &VAOs[0]);
     if (isTriangle)
     {
-        glGenBuffers(1, &VBO);
+        glGenBuffers(2, VBOs);
     }
     else
     {
-        glGenBuffers(1, &VBO);
+        glGenBuffers(2, VBOs);
         glGenBuffers(1, &EBO);
     }
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAOs[0]);
 
     if (isTriangle)
     {
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
 
+        glBindVertexArray(VAOs[1]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
     } else {
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(square), square, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(squareIndices), squareIndices, GL_STATIC_DRAW);
@@ -201,26 +209,31 @@ int main() {
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
-    // link shaders
     unsigned int shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
-    // Specify the layout of the vertex data
-    int posAttrib = glGetAttribLocation(shaderProgram, "position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false, 6 * sizeof(float), nullptr);
+    for (int i=0;i<2;i++)
+    {
+        glBindVertexArray(VAOs[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
+        // link shaders
+        glAttachShader(shaderProgram, vertexShader);
+        glAttachShader(shaderProgram, fragmentShader);
+        glBindFragDataLocation(shaderProgram, 0, "outColor");
+        glLinkProgram(shaderProgram);
+        glUseProgram(shaderProgram);
+        // Specify the layout of the vertex data
+        int posAttrib = glGetAttribLocation(shaderProgram, "position");
+        glEnableVertexAttribArray(posAttrib);
+        glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false, 6 * sizeof(float), nullptr);
 
-    int colAttrib = glGetAttribLocation(shaderProgram, "color");
-    glEnableVertexAttribArray(colAttrib);
-    glVertexAttribPointer(colAttrib, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    // check for linking errors
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        int colAttrib = glGetAttribLocation(shaderProgram, "color");
+        glEnableVertexAttribArray(colAttrib);
+        glVertexAttribPointer(colAttrib, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        // check for linking errors
+        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shaderProgram, 512, nullptr, infoLog);
+            std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        }
     }
 
     // render loop
@@ -244,13 +257,17 @@ int main() {
         // draw our first triangle
         if (isTriangle)
         {
+            // TODO: Only do when needed to move triangle
+            glBindVertexArray(VAOs[0]);
+            glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
             glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-            glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
             glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(VAOs[1]);
+            glDrawArrays(GL_TRIANGLES, 3, 3);
         } else
         {
-            glBindVertexArray(VAO);
-            glBindVertexArray(VAO);
+            glBindVertexArray(VAOs[0]);
+            glBindVertexArray(VAOs[1]);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         }
@@ -263,9 +280,9 @@ int main() {
     }
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(2, &EBO);
+    glDeleteVertexArrays(2, VAOs);
+    glDeleteBuffers(2, VBOs);
+    glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
