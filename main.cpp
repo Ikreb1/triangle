@@ -4,9 +4,11 @@
 #pragma once
 
 #include "triangle.h"
-#include "shaders.h"
+#include "ShaderExample.h"
+#include "textureExample.h"
 
 int main() {
     // return Triangle().runTriangle();
-    return shaders().runShaders();
+    // return ShaderExample().runShaders();
+    textureExample().run();
 }

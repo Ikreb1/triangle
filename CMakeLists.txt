@@ -13,5 +13,5 @@ include_directories("C:/glad/src")
 
 
 set(SOURCE_FILES main.cpp)
-add_executable(triangle main.cpp "C:/glad/src/glad.c" triangle.cpp triangle.h shaders.cpp shaders.h)
+add_executable(triangle main.cpp "C:/glad/src/glad.c" triangle.cpp triangle.h ShaderExample.cpp ShaderExample.h Shader.cpp Shader.h textureExample.cpp textureExample.h idk.h texture.cpp texture.h)
 target_link_libraries (triangle ${OPENGL_LIBRARIES} glfw3 glu32 opengl32)

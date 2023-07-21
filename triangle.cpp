@@ -215,7 +215,7 @@ int Triangle::runTriangle() {
     {
         glBindVertexArray(VAOs[i]);
         glBindBuffer(GL_ARRAY_BUFFER, VBOs[i]);
-        // link shaders
+        // link ShaderExample
         glAttachShader(shaderProgram, vertexShader);
         glAttachShader(shaderProgram, fragmentShader);
         glBindFragDataLocation(shaderProgram, 0, "outColor");
