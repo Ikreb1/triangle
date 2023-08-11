@@ -6,8 +6,11 @@
 #include "textureExample.h"
 #include "idk.h"
 #include "texture.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-void framebuffer_size_callback3(GLFWwindow* window, int width, int height)
+inline void framebuffer_size_callback3(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
@@ -50,6 +53,23 @@ void textureExample::process_input(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+    {
+        mixValue += 0.005f;
+        if (mixValue >= 1.0f)
+        {
+            mixValue = 1.0f;
+        }
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+    {
+        mixValue -= 0.005f;
+        if (mixValue <= 0.0f)
+        {
+            mixValue = 0.0f;
+        }
+    }
+
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && backgroundInputDelay == 0)
     {
         if (toggleWireframe)
@@ -77,7 +97,9 @@ int textureExample::run() {
     ourShader.use();
 
     const char* texturePath = R"(C:\git\triangle\textures\letsGo.jpg)";
+    const char* texturePath2 = R"(C:\git\triangle\textures\peepowicked.png)";
     texture texture1 = texture(texturePath);
+    texture texture2 = texture(texturePath2, true);
 
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -105,6 +127,10 @@ int textureExample::run() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    // image loading
+    ourShader.setInt("texture1", 0);
+    ourShader.setInt("texture2", 1);
+
     // render loop
     while(!glfwWindowShouldClose(window))
     {
@@ -115,7 +141,12 @@ int textureExample::run() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        ourShader.setFloat("mixValue", mixValue);
+
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1.ID);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2.ID);
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 

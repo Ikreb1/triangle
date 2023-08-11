@@ -3,6 +3,7 @@
 //
 
 #include "Shader.h"
+#include "glm/gtc/type_ptr.hpp"
 
 Shader::Shader(const char *vertexPath, const char *fragmentPath) {
     // 1. retrieve the vertex/fragment source code from filePath
@@ -99,4 +100,9 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type) {
             std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     }
+}
+
+void Shader::setMat4(const std::string &name, glm::mat4 value) const {
+    auto location = glGetUniformLocation(ID, name.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
