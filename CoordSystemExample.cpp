@@ -58,13 +58,6 @@ int CoordSystemExample::run(GLFWwindow *window) {
         return -1;
     }
 
-    // w is 1 so translation can occur
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
-    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-    vec = trans * vec;
-
     const char* vertexSource = R"(C:\git\triangle\shaders\shader2.vert)";
     const char* fragmentSource = R"(C:\git\triangle\shaders\shader2.frag)";
     Shader ourShader = Shader(vertexSource, fragmentSource);
@@ -117,7 +110,7 @@ int CoordSystemExample::run(GLFWwindow *window) {
 
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);;
-        view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
         projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
         ourShader.setMat4("view", view);
         ourShader.setMat4("projection", projection);
@@ -131,6 +124,10 @@ int CoordSystemExample::run(GLFWwindow *window) {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, cubeLocation);
             float angle = 20.0f * (float)i;
+            if (i % 3 == 0)
+            {
+                angle += (float)glfwGetTime() * 50.f;
+            }
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             ourShader.setMat4("model", model);
             glDrawArrays(GL_TRIANGLES, 0, 36);

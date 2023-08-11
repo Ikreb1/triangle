@@ -12,7 +12,8 @@ void Window::framebuffer_size_callback3(GLFWwindow* window, int width, int heigh
     glViewport(0, 0, width, height);
 }
 
-GLFWwindow *Window::init() {
+GLFWwindow *Window::init()
+{
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
