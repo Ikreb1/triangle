@@ -11,11 +11,10 @@
 
 class transformationExample {
 public:
-    int run();
+    int run(GLFWwindow* window);
 
 private:
     void process_input(GLFWwindow* window);
-    GLFWwindow* init();
 
     bool toggleWireframe = false;
     int backgroundInputDelay = 0;

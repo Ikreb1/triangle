@@ -19,5 +19,7 @@ add_executable(triangle main.cpp "C:/glad/src/glad.c" triangle.cpp triangle.h Sh
         transformationExample.cpp
         transformationExample.h
         CoordSystemExample.cpp
-        CoordSystemExample.h)
+        CoordSystemExample.h
+        Window.cpp
+        Window.h)
 target_link_libraries (triangle ${OPENGL_LIBRARIES} glfw3 glu32 opengl32)

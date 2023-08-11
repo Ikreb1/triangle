@@ -7,11 +7,16 @@
 //#include "ShaderExample.h"
 //#include "textureExample.h"
 #include "transformationExample.h"
+#include "Window.h"
+#include "CoordSystemExample.h"
 
 int main() {
+    auto window = new Window();
+    auto windowPtr = window->init();
     // return Triangle().runTriangle();
     // return ShaderExample().runShaders();
     // return textureExample().run();
-    return transformationExample().run();
+    // return transformationExample().run();
+    return CoordSystemExample().run(windowPtr);
 }
 #endif
