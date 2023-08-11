@@ -13,6 +13,10 @@ class Window {
 public:
     GLFWwindow* init();
 
+    int height;
+
+    int width;
+
 private:
     static void framebuffer_size_callback3(GLFWwindow* window, int width, int height);
 };

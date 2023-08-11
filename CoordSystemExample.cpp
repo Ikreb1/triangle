@@ -52,20 +52,18 @@ void CoordSystemExample::process_input(GLFWwindow *window) {
 }
 
 int CoordSystemExample::run(GLFWwindow *window) {
+    // Vclip=Mprojection⋅Mview⋅Mmodel⋅Vlocal
     if (!window)
     {
         return -1;
     }
 
-    // METH
     // w is 1 so translation can occur
     glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::rotate(trans, glm::radians(45.0f), glm::vec3(0.0, 0.0, 1.0));
     trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
     vec = trans * vec;
-    std::cout << vec.x << " " << vec.y << " " << vec.z << std::endl;
-    // END METH
 
     const char* vertexSource = R"(C:\git\triangle\shaders\shader2.vert)";
     const char* fragmentSource = R"(C:\git\triangle\shaders\shader2.frag)";
@@ -80,64 +78,64 @@ int CoordSystemExample::run(GLFWwindow *window) {
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    unsigned int VBO, VAO, EBO;
+    unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(minecraft), minecraft, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // image loading
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
-    ourShader.setMat4("transform", trans);
-    auto MyLocation = glm::vec3(0.0f, 0.0f, 0.0f);
 
     // render loop
     while(!glfwWindowShouldClose(window))
     {
         process_input(window);
 
-
-
-        trans = glm::mat4(1.0f);
-        // auto myVec = glm::vec3(sin(glfwGetTime()), cos(glfwGetTime()), 0.0f);
-        // myVec /= 2.0f;
-        auto myVec = glm::vec3(0.0f, 0.0f, 0.0f);
-        trans = glm::translate(trans, myVec);
-        trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
-
-        ourShader.setMat4("transform", trans);
-
         // render commands
         // state-setting function
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        ourShader.setFloat("mixValue", mixValue);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1.ID);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2.ID);
+
+        ourShader.use();
+
+        glm::mat4 view = glm::mat4(1.0f);
+        glm::mat4 projection = glm::mat4(1.0f);;
+        view  = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        projection = glm::perspective(glm::radians(45.0f), (float)800 / (float)600, 0.1f, 100.0f);
+        ourShader.setMat4("view", view);
+        ourShader.setMat4("projection", projection);
+
+        ourShader.setFloat("mixValue", mixValue);
+
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        int i = 0;
+        for (auto cubeLocation : cubePositions)
+        {
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::translate(model, cubeLocation);
+            float angle = 20.0f * (float)i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            ourShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            i++;
+        }
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------

@@ -16,7 +16,7 @@ int main() {
     // return Triangle().runTriangle();
     // return ShaderExample().runShaders();
     // return textureExample().run();
-    // return transformationExample().run();
+    // return transformationExample().run(windowPtr);
     return CoordSystemExample().run(windowPtr);
 }
 #endif
